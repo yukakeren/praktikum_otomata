@@ -31,7 +31,7 @@ class LexerApp(tk.Tk):
         self.lexer = Lexer()
         self.tokens: List[Token] = []
 
-        self.title('⚡ Lexical Analyzer — Token Classifier')
+        self.title('Token Classifier')
         self.configure(bg=BG_DARK)
         self.geometry('1280x780')
         self.minsize(900, 600)
@@ -77,7 +77,7 @@ class LexerApp(tk.Tk):
         header = tk.Frame(self, bg='#111111', height=56)
         header.pack(fill='x')
         header.pack_propagate(False)
-        tk.Label(header, text='⚡ LEXICAL ANALYZER', bg='#111111',
+        tk.Label(header, text='ANALYZER', bg='#111111',
                  fg=ACCENT, font=('Consolas', 15, 'bold')).pack(side='left', padx=20, pady=12)
         tk.Label(header, text='Token Classifier — Reserve Words · Symbols · Variables · Math',
                  bg='#111111', fg=FG_DIM, font=('Segoe UI', 9)).pack(side='left', pady=18)
