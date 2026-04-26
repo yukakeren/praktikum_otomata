@@ -83,7 +83,8 @@ praktikum_otomata/
 
 sin, cos, tan, log, log2, log10, sqrt, abs, pow, exp, ceil, floor, round, max, min, sum, pi, e, factorial, gcd, lcm, hypot, asin, acos, atan, atan2
 
-# PRAAKTIKUM 2 - FINITE STATE MACHINE
+
+# PRAKTIKUM 2 - FINITE STATE MACHINE
 
 ## Definisi FSM
 
