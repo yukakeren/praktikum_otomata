@@ -82,3 +82,27 @@ praktikum_otomata/
 ## Supported Math Functions
 
 sin, cos, tan, log, log2, log10, sqrt, abs, pow, exp, ceil, floor, round, max, min, sum, pi, e, factorial, gcd, lcm, hypot, asin, acos, atan, atan2
+
+# PRAAKTIKUM 2 - FINITE STATE MACHINE
+
+## Definisi FSM
+
+Di sini kita mendefinisikan komponen-komponen formal sebuah FSM (Finite State Machine). `STATES` adalah himpunan semua state yang dimiliki mesin. `ALPHABET` adalah himpunan simbol yang bisa dibaca mesin, dalam kasus ini hanya '0' dan '1'. `START_STATE` adalah state awal tempat mesin mulai bekerja, yaitu 'S'. `ACCEPT_STAT`E adalah himpunan state yang menyatakan string diterima, yaitu hanya 'B'.
+
+`TRANSITION` adalah kamus dua tingkat yang merepresentasikan fungsi transisi `δ(state, karakter) → state_baru`. Misalnya `TRANSITION['A']['0']` menghasilkan 'C', artinya jika mesin berada di state A lalu membaca karakter 0, mesin pindah ke state C (trap state karena ada substring 00).
+
+## Fungsi `jalankan_fsm`
+
+Fungsi menerima sebuah string lalu mensimulasikan cara kerja mesin FSM karakter per karakter. Prosesnya dimulai dari `START_STATE`, kemudian setiap karakter dibaca satu per satu. Jika karakternya bukan '0' atau '1', fungsi langsung melempar error. Setiap perpindahan state dicatat ke dalam list `jejak` sebagai pasangan `(karakter, state_baru)`.
+
+Setelah semua karakter selesai diproses, dicek apakah state terakhir ada di `ACCEPT_STATE`. Fungsi mengembalikan dua nilai: boolean `diterima` dan list `jejak` yang bisa digunakan untuk menampilkan trace perjalanan mesin.
+
+# Fungsi `tampilkan_hasil`
+
+Fungsi ini bertanggung jawab memformat dan mencetak hasil ke layar. Pertama dicek apakah string kosong. Jika iya langsung ditolak karena bahasa L mensyaratkan panjang minimal 1 karakter `(0+1)⁺`. Jika ada error karakter tidak valid, pesan error ditampilkan dengan aman melalui blok `try/except`.
+
+`teks_jejak` adalah string yang menggambarkan perjalanan mesin seperti `S —0→ A —1→ B`. Ini membantu pengguna memahami kenapa sebuah string diterima atau ditolak. Jika string ditolak, alasan spesifik juga dicetak: apakah karena masuk trap state C (ada substring 00) atau karena state akhir bukan B (karakter terakhir bukan 1).
+
+# Mode Interaktif
+
+Bagian ini membuat program berjalan secara interaktif di terminal. Loop `while True` terus meminta input dari pengguna sampai pengguna mengetik kata kunci keluar. Fungsi `.strip()` dipakai untuk membersihkan spasi di awal/akhir input agar tidak mengganggu pemeriksaan. Setiap string yang dimasukkan langsung diteruskan ke `tampilkan_hasil()` dan hasilnya langsung muncul di bawahnya.
