@@ -107,3 +107,7 @@ Fungsi ini bertanggung jawab memformat dan mencetak hasil ke layar. Pertama dice
 ## Mode Interaktif
 
 Bagian ini membuat program berjalan secara interaktif di terminal. Loop `while True` terus meminta input dari pengguna sampai pengguna mengetik kata kunci keluar. Fungsi `.strip()` dipakai untuk membersihkan spasi di awal/akhir input agar tidak mengganggu pemeriksaan. Setiap string yang dimasukkan langsung diteruskan ke `tampilkan_hasil()` dan hasilnya langsung muncul di bawahnya.
+
+## Entry Point
+
+Baris `if __name__ == "__main__"` adalah konvensi standar Python yang memastikan kode di dalamnya hanya dieksekusi ketika file dijalankan langsung, bukan ketika file ini di-import sebagai modul oleh program lain. 
