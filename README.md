@@ -98,12 +98,12 @@ Fungsi menerima sebuah string lalu mensimulasikan cara kerja mesin FSM karakter 
 
 Setelah semua karakter selesai diproses, dicek apakah state terakhir ada di `ACCEPT_STATE`. Fungsi mengembalikan dua nilai: boolean `diterima` dan list `jejak` yang bisa digunakan untuk menampilkan trace perjalanan mesin.
 
-# Fungsi `tampilkan_hasil`
+## Fungsi `tampilkan_hasil`
 
 Fungsi ini bertanggung jawab memformat dan mencetak hasil ke layar. Pertama dicek apakah string kosong. Jika iya langsung ditolak karena bahasa L mensyaratkan panjang minimal 1 karakter `(0+1)⁺`. Jika ada error karakter tidak valid, pesan error ditampilkan dengan aman melalui blok `try/except`.
 
 `teks_jejak` adalah string yang menggambarkan perjalanan mesin seperti `S —0→ A —1→ B`. Ini membantu pengguna memahami kenapa sebuah string diterima atau ditolak. Jika string ditolak, alasan spesifik juga dicetak: apakah karena masuk trap state C (ada substring 00) atau karena state akhir bukan B (karakter terakhir bukan 1).
 
-# Mode Interaktif
+## Mode Interaktif
 
 Bagian ini membuat program berjalan secara interaktif di terminal. Loop `while True` terus meminta input dari pengguna sampai pengguna mengetik kata kunci keluar. Fungsi `.strip()` dipakai untuk membersihkan spasi di awal/akhir input agar tidak mengganggu pemeriksaan. Setiap string yang dimasukkan langsung diteruskan ke `tampilkan_hasil()` dan hasilnya langsung muncul di bawahnya.
