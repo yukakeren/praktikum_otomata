@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDA Simulator</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: #2e3350;
+    --accent: #6c63ff;
+    --accent2: #a78bfa;
+    --green: #22d3a5;
+    --red: #f87171;
+    --yellow: #fbbf24;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Inter', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    padding: 24px 16px;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  header h1 {
+    font-family: var(--mono);
+    font-size: 2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.5px;
+  }
+
+  header p {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-top: 6px;
+  }
+
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    display: grid;
+    gap: 20px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 24px;
+  }
+
+  .card-title {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--accent2);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* Mode Tabs */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .tab {
+    flex: 1;
+    padding: 10px;
+    border-radius: 9px;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-family: var(--sans);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .tab.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  /* Example PDA Selector */
+  .example-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+  }
+
+  .example-card {
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .example-card:hover, .example-card.selected {
+    border-color: var(--accent);
+    background: #1e1b3a;
+  }
+
+  .example-card .ex-name {
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    color: var(--accent2);
+    font-weight: 600;
+  }
+
+  .example-card .ex-desc {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .example-card .ex-lang {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    background: var(--surface);
+    color: var(--yellow);
+    padding: 2px 7px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-top: 6px;
+  }
+
+  /* Form elements */
+  label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+
+  input, select, textarea {
+    width: 100%;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    padding: 10px 12px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+  }
+
+  textarea { resize: vertical; min-height: 100px; }
+
+  .form-row { margin-bottom: 14px; }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  /* Transition table */
+  .trans-table-wrap { overflow-x: auto; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+  }
+
+  th {
+    background: var(--surface2);
+    color: var(--muted);
+    padding: 8px 12px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+  }
+
+  td {
+    padding: 7px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  tr:hover td { background: #1e2134; }
+
+  .del-btn {
+    background: #2a1818;
+    border: 1px solid var(--red);
+    color: var(--red);
+    border-radius: 5px;
+    padding: 3px 8px;
+    cursor: pointer;
+    font-size: 0.75rem;
+  }
+
+  .del-btn:hover { background: var(--red); color: #fff; }
+
+  /* Buttons */
+  .btn {
+    padding: 10px 20px;
+    border-radius: 9px;
+    border: none;
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .btn-primary:hover { background: #5a52e0; }
+
+  .btn-secondary {
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+  }
+
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+  .btn-small {
+    padding: 6px 13px;
+    font-size: 0.78rem;
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+
+  /* Input string area */
+  .string-input-wrap {
+    display: flex;
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  .string-input-wrap input {
+    flex: 1;
+    font-size: 1.1rem;
+    letter-spacing: 3px;
+    text-align: center;
+  }
+
+  /* Result */
+  .result-box {
+    border-radius: 12px;
+    padding: 20px 24px;
+    text-align: center;
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+  .result-box.accepted {
+    background: #0d2b22;
+    border: 2px solid var(--green);
+  }
+
+  .result-box.rejected {
+    background: #2b0d0d;
+    border: 2px solid var(--red);
+  }
+
+  .result-label {
+    font-family: var(--mono);
+    font-size: 1.8rem;
+    font-weight: 700;
+  }
+
+  .result-box.accepted .result-label { color: var(--green); }
+  .result-box.rejected .result-label { color: var(--red); }
+
+  .result-detail {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+
+  /* Trace */
+  .trace-wrap {
+    margin-top: 16px;
+    max-height: 260px;
+    overflow-y: auto;
+  }
+
+  .trace-step {
+    display: grid;
+    grid-template-columns: 32px 1fr 1fr 1fr;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 7px;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    margin-bottom: 4px;
+    background: var(--surface2);
+    align-items: center;
+  }
+
+  .trace-step .step-num { color: var(--muted); }
+  .trace-step .step-state { color: var(--accent2); }
+  .trace-step .step-input { color: var(--yellow); }
+  .trace-step .step-stack { color: var(--green); }
+
+  .trace-header {
+    display: grid;
+    grid-template-columns: 32px 1fr 1fr 1fr;
+    gap: 8px;
+    padding: 5px 10px;
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* Tape visualizer */
+  .tape-wrap {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 12px 0;
+  }
+
+  .tape-cell {
+    width: 36px;
+    height: 36px;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 1rem;
+    font-weight: 600;
+    background: var(--surface2);
+    color: var(--muted);
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  .tape-cell.current {
+    border-color: var(--accent);
+    color: var(--accent2);
+    background: #1e1b3a;
+  }
+
+  .tape-cell.read {
+    border-color: var(--green);
+    color: var(--green);
+    background: #0d2b22;
+  }
+
+  .tape-cell.head::after {
+    content: '▲';
+    position: absolute;
+    bottom: -18px;
+    font-size: 0.65rem;
+    color: var(--accent);
+  }
+
+  /* Stack visualizer */
+  .stack-visual {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 3px;
+    min-height: 60px;
+    align-items: center;
+  }
+
+  .stack-item {
+    width: 80px;
+    padding: 4px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--accent2);
+  }
+
+  .stack-item:last-child {
+    border-color: var(--accent);
+    background: #1e1b3a;
+    color: var(--accent);
+  }
+
+  /* Batch test */
+  .batch-list { display: flex; flex-direction: column; gap: 6px; }
+
+  .batch-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-family: var(--mono);
+    font-size: 0.82rem;
+  }
+
+  .badge {
+    padding: 2px 9px;
+    border-radius: 5px;
+    font-size: 0.72rem;
+    font-weight: 700;
+  }
+
+  .badge.acc { background: #0d2b22; color: var(--green); border: 1px solid var(--green); }
+  .badge.rej { background: #2b0d0d; color: var(--red); border: 1px solid var(--red); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  select option { background: var(--surface2); }
+
+  .hidden { display: none; }
+  .mt { margin-top: 12px; }
+
+  .info-badge {
+    display: inline-block;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 3px 9px;
+    font-family: var(--mono);
+    font-size: 0.73rem;
+    color: var(--muted);
+    margin: 2px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>⟨ PDA Simulator ⟩</h1>
+  <p>Pushdown Automaton — Uji string Accepted / Rejected</p>
+</header>
+
+<div class="container">
+
+  <!-- MODE SELECTOR -->
+  <div class="card">
+    <div class="card-title">Mode</div>
+    <div class="tabs">
+      <button class="tab active" onclick="setMode('example')">📚 Contoh PDA</button>
+      <button class="tab" onclick="setMode('custom')">⚙️ PDA Kustom</button>
+    </div>
+
+    <!-- EXAMPLE MODE -->
+    <div id="example-mode">
+      <div class="example-grid" id="example-grid"></div>
+      <div id="example-info" class="mt"></div>
+    </div>
+
+    <!-- CUSTOM MODE -->
+    <div id="custom-mode" class="hidden">
+      <div class="form-grid">
+        <div class="form-row">
+          <label>States (pisahkan koma)</label>
+          <input type="text" id="inp-states" placeholder="q0, q1, q2" />
+        </div>
+        <div class="form-row">
+          <label>State Awal</label>
+          <input type="text" id="inp-start" placeholder="q0" />
+        </div>
+        <div class="form-row">
+          <label>Accept States (pisahkan koma)</label>
+          <input type="text" id="inp-accept" placeholder="q2" />
+        </div>
+        <div class="form-row">
+          <label>Bottom-of-Stack Symbol</label>
+          <input type="text" id="inp-bottom" placeholder="Z" value="Z" maxlength="5"/>
+        </div>
+      </div>
+
+      <div class="card-title" style="margin-top:10px">Transisi δ(state, input, stack_top) → (next_state, push)</div>
+      <div class="form-grid" style="margin-bottom:10px">
+        <div class="form-row">
+          <label>State</label>
+          <input type="text" id="t-state" placeholder="q0"/>
+        </div>
+        <div class="form-row">
+          <label>Input (kosong = ε)</label>
+          <input type="text" id="t-input" placeholder="a"/>
+        </div>
+        <div class="form-row">
+          <label>Stack Top</label>
+          <input type="text" id="t-stacktop" placeholder="Z"/>
+        </div>
+        <div class="form-row">
+          <label>Next State</label>
+          <input type="text" id="t-next" placeholder="q1"/>
+        </div>
+        <div class="form-row">
+          <label>Push ke Stack (kosong = pop saja)</label>
+          <input type="text" id="t-push" placeholder="AZ"/>
+        </div>
+      </div>
+      <button class="btn btn-secondary btn-small" onclick="addTransition()">+ Tambah Transisi</button>
+
+      <div class="trans-table-wrap mt">
+        <table>
+          <thead>
+            <tr>
+              <th>State</th><th>Input</th><th>Stack Top</th>
+              <th>Next State</th><th>Push</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="trans-tbody"></tbody>
+        </table>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-secondary btn-small" onclick="clearTransitions()">Hapus Semua</button>
+        <button class="btn btn-secondary btn-small" onclick="importJSON()">Import JSON</button>
+        <button class="btn btn-secondary btn-small" onclick="exportJSON()">Export JSON</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- INPUT STRING -->
+  <div class="card">
+    <div class="card-title">Input String</div>
+    <div class="string-input-wrap">
+      <input type="text" id="inp-string" placeholder="Masukkan string (kosong = ε)" />
+      <button class="btn btn-primary" onclick="runPDA()">▶ Jalankan</button>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-secondary btn-small" onclick="clearInput()">✕ Kosongkan</button>
+      <button class="btn btn-secondary btn-small" onclick="openBatch()">📋 Batch Test</button>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="result-box" class="result-box">
+    <div class="result-label" id="result-label"></div>
+    <div class="result-detail" id="result-detail"></div>
+  </div>
+
+  <!-- TAPE VISUALIZER -->
+  <div class="card" id="tape-card" style="display:none">
+    <div class="card-title">Tape &amp; Stack</div>
+    <div id="tape-display" class="tape-wrap"></div>
+    <div style="display:flex;gap:24px;margin-top:16px;align-items:flex-start">
+      <div style="flex:1">
+        <div style="font-size:0.75rem;color:var(--muted);margin-bottom:8px">STACK (top →)</div>
+        <div class="tape-wrap" id="stack-display"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRACE -->
+  <div class="card" id="trace-card" style="display:none">
+    <div class="card-title">Jejak Eksekusi</div>
+    <div class="trace-header">
+      <span>#</span><span>State</span><span>Sisa Input</span><span>Stack</span>
+    </div>
+    <div class="trace-wrap" id="trace-container"></div>
+  </div>
+
+  <!-- BATCH TEST PANEL -->
+  <div class="card" id="batch-card" style="display:none">
+    <div class="card-title">Batch Test</div>
+    <div class="form-row">
+      <label>Masukkan beberapa string (satu per baris)</label>
+      <textarea id="batch-input" placeholder="aabb&#10;ab&#10;aaabbb&#10;ba"></textarea>
+    </div>
+    <button class="btn btn-primary btn-small" onclick="runBatch()">▶ Jalankan Semua</button>
+    <div class="batch-list mt" id="batch-results"></div>
+  </div>
+
+</div>
+
+<script>
+// ===================== PDA ENGINE =====================
+class PDA {
+  constructor(states, startState, acceptStates, bottomSymbol, transitions) {
+    this.states = states;
+    this.startState = startState;
+    this.acceptStates = new Set(acceptStates);
+    this.bottom = bottomSymbol;
+    this.transitions = transitions; // [{state, input, stackTop, nextState, push}]
+  }
+
+  getEpsTransitions(state, stackTop) {
+    return this.transitions.filter(t =>
+      t.state === state && (t.input === 'ε' || t.input === '') && t.stackTop === stackTop
+    );
+  }
+
+  getInputTransitions(state, inputSym, stackTop) {
+    return this.transitions.filter(t =>
+      t.state === state && t.input === inputSym && t.stackTop === stackTop
+    );
+  }
+
+  run(inputStr) {
+    // BFS/DFS over configurations (nondeterministic)
+    // config: {state, pos, stack, trace}
+    const trace = [];
+    const initial = { state: this.startState, pos: 0, stack: [this.bottom], trace: [] };
+    const queue = [initial];
+    const visited = new Set();
+    let bestTrace = [];
+
+    while (queue.length > 0) {
+      const { state, pos, stack, trace: tr } = queue.pop();
+
+      const stackStr = stack.join(',');
+      const key = `${state}|${pos}|${stackStr}`;
+      if (visited.has(key)) continue;
+      visited.add(key);
+
+      const inputSym = pos < inputStr.length ? inputStr[pos] : null;
+      const stackTop = stack.length > 0 ? stack[stack.length - 1] : null;
+
+      // Record step
+      const step = {
+        state,
+        remaining: inputStr.slice(pos),
+        stack: [...stack]
+      };
+      const newTrace = [...tr, step];
+
+      // Check accept: all input read AND (state in acceptStates)
+      if (pos === inputStr.length && this.acceptStates.has(state)) {
+        return { accepted: true, trace: newTrace };
+      }
+
+      if (newTrace.length > bestTrace.length) bestTrace = newTrace;
+
+      // ε-transitions (push first = tried last in LIFO)
+      if (stackTop) {
+        const epsTrans = this.getEpsTransitions(state, stackTop);
+        for (const t of epsTrans) {
+          const newStack = [...stack];
+          newStack.pop();
+          if (t.push && t.push !== 'ε' && t.push !== '') {
+            for (const sym of t.push.split('').reverse()) newStack.push(sym);
+          }
+          queue.push({ state: t.nextState, pos, stack: newStack, trace: newTrace });
+        }
+      }
+
+      // Input transitions (push last = tried first in LIFO)
+      if (inputSym && stackTop) {
+        const trans = this.getInputTransitions(state, inputSym, stackTop);
+        for (const t of trans) {
+          const newStack = [...stack];
+          newStack.pop();
+          if (t.push && t.push !== 'ε' && t.push !== '') {
+            for (const sym of t.push.split('').reverse()) newStack.push(sym);
+          }
+          queue.push({ state: t.nextState, pos: pos + 1, stack: newStack, trace: newTrace });
+        }
+      }
+    }
+
+    return { accepted: false, trace: bestTrace };
+  }
+}
+
+// ===================== EXAMPLE PDAs =====================
+const EXAMPLES = [
+  {
+    id: 'anbn',
+    name: 'aⁿbⁿ',
+    desc: 'String dengan jumlah a = jumlah b',
+    lang: '{ aⁿbⁿ | n ≥ 1 }',
+    states: ['q0','q1','q2'],
+    start: 'q0',
+    accept: ['q2'],
+    bottom: 'Z',
+    transitions: [
+      {state:'q0', input:'a', stackTop:'Z',  nextState:'q1', push:'AZ'},
+      {state:'q1', input:'a', stackTop:'A',  nextState:'q1', push:'AA'},
+      {state:'q1', input:'b', stackTop:'A',  nextState:'q1', push:''},
+      {state:'q1', input:'',  stackTop:'Z',  nextState:'q2', push:'Z'},
+    ]
+  },
+  {
+    id: 'palindrome',
+    name: 'Palindrom Ganjil',
+    desc: 'wcw⁻¹ — string palindrome karakter a/b dengan c di tengah',
+    lang: '{ wcwᴿ | w ∈ {a,b}* }',
+    states: ['q0','q1','q2'],
+    start: 'q0',
+    accept: ['q2'],
+    bottom: 'Z',
+    transitions: [
+      {state:'q0', input:'a', stackTop:'Z',  nextState:'q0', push:'AZ'},
+      {state:'q0', input:'a', stackTop:'A',  nextState:'q0', push:'AA'},
+      {state:'q0', input:'a', stackTop:'B',  nextState:'q0', push:'AB'},
+      {state:'q0', input:'b', stackTop:'Z',  nextState:'q0', push:'BZ'},
+      {state:'q0', input:'b', stackTop:'A',  nextState:'q0', push:'BA'},
+      {state:'q0', input:'b', stackTop:'B',  nextState:'q0', push:'BB'},
+      {state:'q0', input:'c', stackTop:'Z',  nextState:'q1', push:'Z'},
+      {state:'q0', input:'c', stackTop:'A',  nextState:'q1', push:'A'},
+      {state:'q0', input:'c', stackTop:'B',  nextState:'q1', push:'B'},
+      {state:'q1', input:'a', stackTop:'A',  nextState:'q1', push:''},
+      {state:'q1', input:'b', stackTop:'B',  nextState:'q1', push:''},
+      {state:'q1', input:'',  stackTop:'Z',  nextState:'q2', push:'Z'},
+    ]
+  },
+  {
+    id: 'balanced',
+    name: 'Kurung Seimbang',
+    desc: 'String kurung buka/tutup yang seimbang',
+    lang: '{ s | s adalah kurung seimbang }',
+    states: ['q0','q1'],
+    start: 'q0',
+    accept: ['q1'],
+    bottom: 'Z',
+    transitions: [
+      {state:'q0', input:'(', stackTop:'Z',  nextState:'q0', push:'(Z'},
+      {state:'q0', input:'(', stackTop:'(',  nextState:'q0', push:'(('},
+      {state:'q0', input:')', stackTop:'(',  nextState:'q0', push:''},
+      {state:'q0', input:'',  stackTop:'Z',  nextState:'q1', push:'Z'},
+    ]
+  },
+  {
+    id: 'a2nb',
+    name: 'a²ⁿbⁿ',
+    desc: 'Jumlah a = dua kali jumlah b',
+    lang: '{ a²ⁿbⁿ | n ≥ 1 }',
+    states: ['q0','q1','q2','q3'],
+    start: 'q0',
+    accept: ['q3'],
+    bottom: 'Z',
+    transitions: [
+      {state:'q0', input:'a', stackTop:'Z',  nextState:'q1', push:'Z'},
+      {state:'q0', input:'a', stackTop:'A',  nextState:'q1', push:'A'},
+      {state:'q1', input:'a', stackTop:'Z',  nextState:'q0', push:'AZ'},
+      {state:'q1', input:'a', stackTop:'A',  nextState:'q0', push:'AA'},
+      {state:'q0', input:'b', stackTop:'A',  nextState:'q2', push:''},
+      {state:'q2', input:'b', stackTop:'A',  nextState:'q2', push:''},
+      {state:'q2', input:'',  stackTop:'Z',  nextState:'q3', push:'Z'},
+    ]
+  },
+];
+
+// ===================== STATE =====================
+let currentMode = 'example';
+let selectedExample = EXAMPLES[0];
+let customTransitions = [];
+let currentPDA = null;
+
+// ===================== INIT =====================
+function init() {
+  renderExamples();
+  selectExample(EXAMPLES[0]);
+}
+
+function renderExamples() {
+  const grid = document.getElementById('example-grid');
+  grid.innerHTML = EXAMPLES.map((ex, i) => `
+    <div class="example-card ${i===0?'selected':''}" id="ex-${ex.id}" onclick="selectExample(EXAMPLES[${i}])">
+      <div class="ex-name">${ex.name}</div>
+      <div class="ex-desc">${ex.desc}</div>
+      <div class="ex-lang">${ex.lang}</div>
+    </div>
+  `).join('');
+}
+
+function selectExample(ex) {
+  selectedExample = ex;
+  document.querySelectorAll('.example-card').forEach(c => c.classList.remove('selected'));
+  const card = document.getElementById('ex-'+ex.id);
+  if (card) card.classList.add('selected');
+
+  document.getElementById('example-info').innerHTML = `
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+      <span class="info-badge">States: ${ex.states.join(', ')}</span>
+      <span class="info-badge">Start: ${ex.start}</span>
+      <span class="info-badge">Accept: ${ex.accept.join(', ')}</span>
+      <span class="info-badge">Bottom: ${ex.bottom}</span>
+    </div>
+  `;
+}
+
+function setMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    t.classList.toggle('active', (mode==='example'&&i===0)||(mode==='custom'&&i===1));
+  });
+  document.getElementById('example-mode').classList.toggle('hidden', mode !== 'example');
+  document.getElementById('custom-mode').classList.toggle('hidden', mode !== 'custom');
+}
+
+// ===================== CUSTOM PDA =====================
+function addTransition() {
+  const state    = document.getElementById('t-state').value.trim();
+  const input    = document.getElementById('t-input').value.trim();
+  const stackTop = document.getElementById('t-stacktop').value.trim();
+  const nextSt   = document.getElementById('t-next').value.trim();
+  const push     = document.getElementById('t-push').value.trim();
+  if (!state || !stackTop || !nextSt) { alert('State, Stack Top, dan Next State wajib diisi.'); return; }
+  customTransitions.push({state, input, stackTop, nextState:nextSt, push});
+  renderTransTable();
+}
+
+function renderTransTable() {
+  const tbody = document.getElementById('trans-tbody');
+  tbody.innerHTML = customTransitions.map((t,i) => `
+    <tr>
+      <td>${t.state}</td>
+      <td>${t.input||'ε'}</td>
+      <td>${t.stackTop}</td>
+      <td>${t.nextState}</td>
+      <td>${t.push||'ε'}</td>
+      <td><button class="del-btn" onclick="delTransition(${i})">✕</button></td>
+    </tr>
+  `).join('');
+}
+
+function delTransition(i) { customTransitions.splice(i,1); renderTransTable(); }
+function clearTransitions() { customTransitions=[]; renderTransTable(); }
+
+function buildCustomPDA() {
+  const states  = document.getElementById('inp-states').value.split(',').map(s=>s.trim()).filter(Boolean);
+  const start   = document.getElementById('inp-start').value.trim();
+  const accept  = document.getElementById('inp-accept').value.split(',').map(s=>s.trim()).filter(Boolean);
+  const bottom  = document.getElementById('inp-bottom').value.trim() || 'Z';
+  if (!start) { alert('State Awal wajib diisi.'); return null; }
+  if (accept.length===0) { alert('Accept States wajib diisi.'); return null; }
+  if (customTransitions.length===0) { alert('Minimal satu transisi harus ditambahkan.'); return null; }
+  return new PDA(states, start, accept, bottom, customTransitions);
+}
+
+function buildExamplePDA(ex) {
+  return new PDA(ex.states, ex.start, ex.accept, ex.bottom, ex.transitions);
+}
+
+function importJSON() {
+  const json = prompt('Paste JSON transisi (array of {state,input,stackTop,nextState,push}):');
+  if (!json) return;
+  try {
+    const parsed = JSON.parse(json);
+    customTransitions = parsed;
+    renderTransTable();
+  } catch(e) { alert('JSON tidak valid: '+e.message); }
+}
+
+function exportJSON() {
+  const json = JSON.stringify(customTransitions, null, 2);
+  const blob = new Blob([json], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download='pda_transitions.json'; a.click();
+}
+
+// ===================== RUN PDA =====================
+function runPDA() {
+  let pda;
+  if (currentMode === 'example') {
+    pda = buildExamplePDA(selectedExample);
+  } else {
+    pda = buildCustomPDA();
+    if (!pda) return;
+  }
+
+  const str = document.getElementById('inp-string').value;
+  const result = pda.run(str);
+
+  showResult(result, str);
+  showTrace(result.trace);
+  showTape(str, result.trace);
+}
+
+function showResult(result, str) {
+  const box = document.getElementById('result-box');
+  const label = document.getElementById('result-label');
+  const detail = document.getElementById('result-detail');
+
+  box.style.display = 'block';
+  box.className = 'result-box ' + (result.accepted ? 'accepted' : 'rejected');
+  label.textContent = result.accepted ? '✓ ACCEPTED' : '✗ REJECTED';
+  const disp = str === '' ? 'ε (string kosong)' : `"${str}"`;
+  detail.textContent = `String ${disp} ${result.accepted ? 'diterima' : 'ditolak'} oleh PDA ini.`;
+}
+
+function showTrace(trace) {
+  const card = document.getElementById('trace-card');
+  const container = document.getElementById('trace-container');
+  card.style.display = 'block';
+  container.innerHTML = trace.map((step, i) => `
+    <div class="trace-step">
+      <span class="step-num">${i}</span>
+      <span class="step-state">${step.state}</span>
+      <span class="step-input">${step.remaining||'ε'}</span>
+      <span class="step-stack">[${step.stack.join(' ')}]</span>
+    </div>
+  `).join('');
+}
+
+function showTape(str, trace) {
+  const card = document.getElementById('tape-card');
+  card.style.display = 'block';
+
+  const tape = document.getElementById('tape-display');
+  const stackDisp = document.getElementById('stack-display');
+
+  // Show final tape state
+  const chars = str === '' ? ['ε'] : str.split('');
+  const lastStep = trace[trace.length-1];
+  const finalPos = lastStep ? str.length - lastStep.remaining.length : 0;
+
+  tape.innerHTML = chars.map((c,i) => {
+    let cls = 'tape-cell';
+    if (i < finalPos) cls += ' read';
+    else if (i === finalPos) cls += ' current head';
+    return `<div class="${cls}">${c}</div>`;
+  }).join('');
+
+  if (lastStep) {
+    stackDisp.innerHTML = lastStep.stack.map((s,i,arr) => {
+      const isTop = i===arr.length-1;
+      return `<div class="tape-cell${isTop?' current':''}" style="width:auto;padding:0 12px">${s}</div>`;
+    }).join('');
+  }
+}
+
+function clearInput() {
+  document.getElementById('inp-string').value = '';
+  document.getElementById('result-box').style.display = 'none';
+  document.getElementById('trace-card').style.display = 'none';
+  document.getElementById('tape-card').style.display = 'none';
+}
+
+// ===================== BATCH TEST =====================
+function openBatch() {
+  const card = document.getElementById('batch-card');
+  card.style.display = card.style.display === 'none' ? 'block' : 'none';
+}
+
+function runBatch() {
+  let pda;
+  if (currentMode === 'example') {
+    pda = buildExamplePDA(selectedExample);
+  } else {
+    pda = buildCustomPDA();
+    if (!pda) return;
+  }
+
+  const lines = document.getElementById('batch-input').value.split('\n').map(l=>l.trim());
+  const results = document.getElementById('batch-results');
+  results.innerHTML = lines.filter(l=>l!==undefined).map(line => {
+    const str = line;
+    const res = pda.run(str);
+    const disp = str==='' ? 'ε' : str;
+    return `
+      <div class="batch-item">
+        <span class="badge ${res.accepted?'acc':'rej'}">${res.accepted?'ACCEPTED':'REJECTED'}</span>
+        <span style="font-family:var(--mono);letter-spacing:2px">${disp}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+// ===================== ENTER KEY =====================
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('inp-string').addEventListener('keydown', e => {
+    if (e.key === 'Enter') runPDA();
+  });
+  init();
+});
+</script>
+</body>
+</html>
